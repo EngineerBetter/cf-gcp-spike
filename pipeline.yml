@@ -29,9 +29,10 @@ jobs:
 - name: setup-project
   serial: true
   plan:
-  - get: concourse-gcp-tf-bootstrap
-  - get: cf-gcp-spike
-    trigger: true
+  - in_parallel:
+    - get: concourse-gcp-tf-bootstrap
+    - get: cf-gcp-spike
+      trigger: true
   - task: bootstrap-terraform
     file: concourse-gcp-tf-bootstrap/tasks/bootstrap.yml
     input_mapping:
