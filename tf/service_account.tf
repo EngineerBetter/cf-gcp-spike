@@ -10,7 +10,7 @@ provider "google" {
 
 data "google_iam_policy" "editor" {
   binding {
-    role = "roles/iam.serviceAccountUser"
+    role = "roles/editor"
 
     members = [
       "serviceAccount:${google_service_account.concourse.email}",
