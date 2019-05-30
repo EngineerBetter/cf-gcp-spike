@@ -132,13 +132,17 @@ jobs:
     - get: cf-deployment-concourse-tasks
       trigger: true
     - get: pcf-ops
+    - get: service-account-tf
+  - task: get-service-json
+    file: cf-gcp-spike/tasks/get-service-json.yml
+    image: pcf-ops
   - task: bbl-up
     file: cf-deployment-concourse-tasks/bbl-up/task.yml
     input_mapping:
       bbl-config: bosh-bootloader
     params:
       BBL_GCP_REGION: ((region))
-      BBL_GCP_SERVICE_ACCOUNT_KEY: ((gcp_credentials_json))
+      BBL_GCP_SERVICE_ACCOUNT_KEY: service-account-json/gcreds.json
       BBL_IAAS: gcp
       BBL_LB_CERT: ((lb_cert.certificate))
       BBL_LB_KEY: ((lb_cert.private_key))
