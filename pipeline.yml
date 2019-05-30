@@ -145,8 +145,8 @@ jobs:
       BBL_GCP_REGION: ((region))
       BBL_GCP_SERVICE_ACCOUNT_KEY: gcreds.json
       BBL_IAAS: gcp
-      BBL_LB_CERT: tls_cert
-      BBL_LB_KEY: tls_key
+      BBL_LB_CERT: ../tls_cert
+      BBL_LB_KEY: ../tls_key
       BBL_STATE_DIR: bbl-state
       LB_DOMAIN: ((domain))
       SKIP_LB_CREATION: false
