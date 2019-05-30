@@ -24,7 +24,7 @@ resource "google_service_account" "concourse" {
 }
 
 resource "google_service_account_iam_policy" "concourse-iam" {
-  service_account_id = "${google_service_account.concourse.account_id}"
+  service_account_id = "${google_service_account.concourse.unique_id}"
 
   policy_data = "${data.google_iam_policy.editor.policy_data}"
 }
