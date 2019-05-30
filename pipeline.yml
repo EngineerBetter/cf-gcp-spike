@@ -3,6 +3,7 @@ groups:
 - name: deploy
   jobs:
   - setup-project
+  - deploy-bosh
 - name: destroy
   jobs:
   - teardown-project
@@ -50,12 +51,12 @@ resources:
   source:
     uri: https://github.com/cloudfoundry/bosh-bootloader.git
     tag_filter: v8.*
-- name: cf-deployment
-  type: git
-  check_every: 2m
-  source:
-    uri: https://github.com/cloudfoundry/cf-deployment.git
-    tag_filter: v9.*
+# - name: cf-deployment
+#   type: git
+#   check_every: 2m
+#   source:
+#     uri: https://github.com/cloudfoundry/cf-deployment.git
+#     tag_filter: v9.*
 - name: pcf-ops
   type: docker-image
   source:
