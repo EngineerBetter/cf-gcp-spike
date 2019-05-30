@@ -1,0 +1,49 @@
+---
+resource_types:
+- name: gcs-resource
+  type: docker-image
+  source:
+    repository: frodenas/gcs-resource
+
+resources:
+- name: tfstate
+  type: gcs-resource
+  source:
+    bucket: ((project_id))
+    json_key: ((gcp_credentials_json))
+    versioned_file: ci/terraform.tfstate
+- name: cf-gcp-spike
+  type: git
+  check_every: 2m
+  source:
+    uri: https://github.com/EngineerBetter/cf-gcp-spike.git
+    branch: master
+- name: concourse-gcp-tf-bootstrap
+  type: git
+  check_every: 2m
+  source:
+    uri: https://github.com/EngineerBetter/concourse-gcp-tf-bootstrap.git
+    branch: v1.0.0
+
+jobs:
+- name: setup-project
+  serial: true
+  plan:
+  - get: concourse-gcp-tf-bootstrap
+  - get: cf-gcp-spike
+    trigger: true
+  - task: bootstrap-terraform
+    file: concourse-gcp-tf-bootstrap/tasks/bootstrap.yml
+    input_mapping:
+      gcp-bootstrap: concourse-gcp-tf-bootstrap
+    params: &project-ops-params
+      BILLING_ACCOUNT_ID: ((billing_account_id))
+      BUCKET_LOCATION: ((region))
+      FOLDER_NAME: ((folder_name))
+      GCP_CREDENTIALS_JSON: ((gcp_credentials_json))
+      ORGANIZATION_ID: ((organization_id))
+      PROJECT_ID: ((project_id))
+      PROJECT_NAME: ((project_name))
+  - put: tfstate
+    params:
+      file: tfstate-out/terraform.tfstate
