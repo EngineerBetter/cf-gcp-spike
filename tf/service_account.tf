@@ -27,5 +27,5 @@ resource "google_service_account_key" "key" {
 }
 
 output "key" {
-  value = "${google_service_account_key.key.public_key}"
+  value = "${google_service_account_key.key.private_key}"
 }
