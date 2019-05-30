@@ -43,8 +43,9 @@ resource "tls_private_key" "tls_key" {
 }
 
 resource "tls_self_signed_cert" "tls_cert" {
-  key_algorithm   = "${tls_private_key.tls_key.algorithm}"
-  private_key_pem = "${tls_private_key.tls_key.private_key_pem}"
+  key_algorithm         = "${tls_private_key.tls_key.algorithm}"
+  private_key_pem       = "${tls_private_key.tls_key.private_key_pem}"
+  validity_period_hours = 8760
 
   allowed_uses = [
     "key_encipherment",

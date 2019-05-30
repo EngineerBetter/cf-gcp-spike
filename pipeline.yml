@@ -78,6 +78,7 @@ resources:
       region: ((region))
       gcp_creds: ((gcp_credentials_json))
       project_id: ((project_id))
+      domain: ((domain))
 
 jobs:
 - name: setup-project
