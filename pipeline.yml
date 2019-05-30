@@ -142,7 +142,7 @@ jobs:
       bbl-config: bosh-bootloader
     params:
       BBL_GCP_REGION: ((region))
-      BBL_GCP_SERVICE_ACCOUNT_KEY: service-account-json/gcreds.json
+      BBL_GCP_SERVICE_ACCOUNT_KEY: gcreds.json
       BBL_IAAS: gcp
       BBL_LB_CERT: ((lb_cert.certificate))
       BBL_LB_KEY: ((lb_cert.private_key))

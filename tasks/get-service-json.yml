@@ -3,13 +3,14 @@ platform: linux
 
 inputs:
 - name: service-account-tf
+- name: bbl-state
 
 outputs:
-- name: service-account-json
+- name: bbl-state
 
 run:
   path: bash
   args:
   - -euc
   - |
-    jq -r '.key' service-account-tf/metadata | base64 --decode > service-account-json/gcreds.json
+    jq -r '.key' service-account-tf/metadata | base64 --decode > bbl-state/gcreds.json
