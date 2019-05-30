@@ -14,7 +14,8 @@ resource "google_service_account" "concourse" {
 }
 
 resource "google_service_account_iam_member" "concourse-iam" {
-  role = "roles/editor"
+  service_account_id = "${google_service_account.concourse.name}"
+  role               = "roles/editor"
 
   member = "serviceAccount:${google_service_account.concourse.email}"
 }
