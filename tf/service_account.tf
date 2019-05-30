@@ -8,25 +8,17 @@ provider "google" {
   region      = "${var.region}"
 }
 
-data "google_iam_policy" "editor" {
-  binding {
-    role = "roles/editor"
-
-    members = [
-      "serviceAccount:${google_service_account.concourse.email}",
-    ]
-  }
-}
-
 resource "google_service_account" "concourse" {
   account_id   = "concourse"
   display_name = "Concourse"
 }
 
-resource "google_service_account_iam_policy" "concourse-iam" {
-  service_account_id = "${google_service_account.concourse.name}"
+resource "google_project_iam_binding" "concourse-iam" {
+  role = "roles/editor"
 
-  policy_data = "${data.google_iam_policy.editor.policy_data}"
+  members = [
+    "serviceAccount:${google_service_account.concourse.email}",
+  ]
 }
 
 resource "google_service_account_key" "key" {
