@@ -20,6 +20,12 @@ resources:
     bucket: ((project_id))
     json_key: ((gcp_credentials_json))
     versioned_file: ci/terraform.tfstate
+- name: bbl-state
+  type: gcs-resource
+  source:
+    bucket: ((project_id))
+    json_key: ((gcp_credentials_json))
+    versioned_file: bbl/state.tgz
 - name: cf-gcp-spike
   type: git
   check_every: 2m
@@ -32,6 +38,28 @@ resources:
   source:
     uri: https://github.com/EngineerBetter/concourse-gcp-tf-bootstrap.git
     branch: v1.0.0
+- name: cf-deployment-concourse-tasks
+  type: git
+  check_every: 2m
+  source:
+    uri: https://github.com/cloudfoundry/cf-deployment-concourse-tasks.git
+    tag_filter: v8.*
+- name: bosh-bootloader
+  type: git
+  check_every: 2m
+  source:
+    uri: https://github.com/cloudfoundry/bosh-bootloader.git
+    tag_filter: v8.*
+- name: cf-deployment
+  type: git
+  check_every: 2m
+  source:
+    uri: https://github.com/cloudfoundry/cf-deployment.git
+    tag_filter: v9.*
+- name: pcf-ops
+  type: docker-image
+  source:
+    repository: engineerbetter/pcf-ops
 
 jobs:
 - name: setup-project
@@ -56,7 +84,44 @@ jobs:
   - put: tfstate
     params:
       file: tfstate-out/terraform.tfstate
-
+- name: deploy-bosh
+  serial: true
+  serial_groups:
+  - bosh
+  plan:
+  - in_parallel:
+    - get: cf-gcp-spike
+      passed:
+      - setup-project
+      trigger: true
+    - get: bbl-state
+      params:
+        unpack: true
+    - get: bosh-bootloader
+      trigger: true
+    - get: cf-deployment-concourse-tasks
+      trigger: true
+    - get: pcf-ops
+  - task: bbl-up
+    file: cf-deployment-concourse-tasks/bbl-up/task.yml
+    input_mapping:
+      bbl-config: bosh-bootloader
+    params:
+      BBL_CONFIG_DIR:
+      BBL_GCP_REGION: ((region))
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((service_account_key))
+      BBL_IAAS: gcp
+      BBL_LB_CERT: ((lb_cert.certificate))
+      BBL_LB_KEY: ((lb_cert.private_key))
+      BBL_STATE_DIR:
+      LB_DOMAIN: ((domain))
+      SKIP_LB_CREATION: false
+  - task: tar-bbl-state
+    file: cf-gcp-spike/tasks/tar-bbl-state.yml
+    image: pcf-ops
+  - put: bbl-state
+    params:
+      file: state-tarball/state.tgz
 
 - name: teardown-project
   serial: true
