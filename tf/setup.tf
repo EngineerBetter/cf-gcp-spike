@@ -43,8 +43,8 @@ resource "tls_private_key" "tls_key" {
 }
 
 resource "tls_self_signed_cert" "tls_cert" {
-  key_algorithm   = "${tls_private_key.example.algorithm}"
-  private_key_pem = "${tls_private_key.example.private_key_pem}"
+  key_algorithm   = "${tls_private_key.tls_key.algorithm}"
+  private_key_pem = "${tls_private_key.tls_key.private_key_pem}"
 
   allowed_uses = [
     "key_encipherment",
