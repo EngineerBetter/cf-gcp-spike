@@ -12,4 +12,4 @@ run:
   args:
   - -euc
   - |
-    jq '.key' service-account-tf/metadata | base64 --decode > service-account-json/gcreds.json
+    jq -r '.key' service-account-tf/metadata | base64 --decode > service-account-json/gcreds.json
