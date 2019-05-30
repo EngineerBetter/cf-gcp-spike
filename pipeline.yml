@@ -118,7 +118,7 @@ jobs:
     params:
       BBL_CONFIG_DIR:
       BBL_GCP_REGION: ((region))
-      BBL_GCP_SERVICE_ACCOUNT_KEY: ((service_account_key))
+      BBL_GCP_SERVICE_ACCOUNT_KEY: ((gcp_credentials_json))
       BBL_IAAS: gcp
       BBL_LB_CERT: ((lb_cert.certificate))
       BBL_LB_KEY: ((lb_cert.private_key))

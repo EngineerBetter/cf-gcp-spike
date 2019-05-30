@@ -14,7 +14,12 @@ run:
     export GOOGLE_APPLICATION_CREDENTIALS=$PWD/googlecreds.json
     gcloud auth activate-service-account --key-file="$GOOGLE_APPLICATION_CREDENTIALS"
 
-    tar -czf state.tgz -T /dev/null
+    mkdir -p base-state
+    pushd base-state
+      git init
+    popd
+
+    tar czf state.tgz -C base-state .
 
     gsutil ls gs://${PROJECT_ID}/bbl || \
       gsutil cp state.tgz gs://${PROJECT_ID}/bbl/
