@@ -1,4 +1,12 @@
 ---
+groups:
+- name: deploy
+  jobs:
+  - setup-project
+- name: destroy
+  jobs:
+  - teardown-project
+
 resource_types:
 - name: gcs-resource
   type: docker-image
@@ -48,3 +56,18 @@ jobs:
   - put: tfstate
     params:
       file: tfstate-out/terraform.tfstate
+
+
+- name: teardown-project
+  serial: true
+  plan:
+  - in_parallel:
+    - get: concourse-gcp-tf-bootstrap
+      passed: [setup-project]
+    - get: tfstate
+      passed: [setup-project]
+  - task: bootstrap-terraform
+    file: concourse-gcp-tf-bootstrap/tasks/teardown.yml
+    input_mapping:
+      gcp-bootstrap: concourse-gcp-tf-bootstrap
+    params: *project-ops-params
