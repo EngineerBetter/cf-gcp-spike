@@ -11,8 +11,8 @@ run:
   - -euc
   - |
     echo "${GCP_CREDENTIALS_JSON}" > googlecreds.json
-    export GOOGLE_APPLICATION_CREDENTIALS=$PWD/googlecreds.json
-    gcloud auth activate-service-account --key-file="$GOOGLE_APPLICATION_CREDENTIALS"
+    export gcreds=$PWD/googlecreds.json
+    gcloud auth activate-service-account --key-file="$gcreds"
 
     mkdir -p base-state
     pushd base-state

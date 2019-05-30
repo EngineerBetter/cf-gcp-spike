@@ -13,6 +13,10 @@ resource_types:
   type: docker-image
   source:
     repository: frodenas/gcs-resource
+- name: terraform
+  type: docker-image
+  source:
+    repository: ljfranklin/terraform-resource
 
 resources:
 - name: tfstate
@@ -61,6 +65,19 @@ resources:
   type: docker-image
   source:
     repository: engineerbetter/pcf-ops
+- name: service-account-tf
+  type: terraform
+  source:
+    env_name: ci
+    backend_type: gcs
+    backend_config:
+      bucket: ((project_id))
+      credentials: ((gcp_credentials_json))
+      prefix: sa
+    vars:
+      region: ((region))
+      gcp_creds: ((gcp_credentials_json))
+      project_id: ((project_id))
 
 jobs:
 - name: setup-project
@@ -93,6 +110,9 @@ jobs:
   - put: tfstate
     params:
       file: tfstate-out/terraform.tfstate
+  - put: service-account-tf
+    params:
+      terraform_source: cf-gcp-spike/tf
 - name: deploy-bosh
   serial: true
   serial_groups:
@@ -116,13 +136,12 @@ jobs:
     input_mapping:
       bbl-config: bosh-bootloader
     params:
-      BBL_CONFIG_DIR:
       BBL_GCP_REGION: ((region))
       BBL_GCP_SERVICE_ACCOUNT_KEY: ((gcp_credentials_json))
       BBL_IAAS: gcp
       BBL_LB_CERT: ((lb_cert.certificate))
       BBL_LB_KEY: ((lb_cert.private_key))
-      BBL_STATE_DIR:
+      BBL_STATE_DIR: bbl-state
       LB_DOMAIN: ((domain))
       SKIP_LB_CREATION: false
   - task: tar-bbl-state
