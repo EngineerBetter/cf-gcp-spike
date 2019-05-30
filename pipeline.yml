@@ -100,19 +100,20 @@ jobs:
       ORGANIZATION_ID: ((organization_id))
       PROJECT_ID: ((project_id))
       PROJECT_NAME: ((project_name))
-  - task: init-bbl-state
-    file: cf-gcp-spike/tasks/init-bbl-state.yml
-    image: pcf-ops
-    params:
-      GCP_CREDENTIALS_JSON: ((gcp_credentials_json))
-      PROJECT_ID: ((project_id))
-      REGION: ((region))
-  - put: tfstate
-    params:
-      file: tfstate-out/terraform.tfstate
-  - put: service-account-tf
-    params:
-      terraform_source: cf-gcp-spike/tf
+  - in_parallel:
+    - task: init-bbl-state
+      file: cf-gcp-spike/tasks/init-bbl-state.yml
+      image: pcf-ops
+      params:
+        GCP_CREDENTIALS_JSON: ((gcp_credentials_json))
+        PROJECT_ID: ((project_id))
+        REGION: ((region))
+    - put: tfstate
+      params:
+        file: tfstate-out/terraform.tfstate
+    - put: service-account-tf
+      params:
+        terraform_source: cf-gcp-spike/tf
 - name: deploy-bosh
   serial: true
   serial_groups:
