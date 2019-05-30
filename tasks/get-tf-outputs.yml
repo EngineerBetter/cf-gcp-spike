@@ -2,7 +2,7 @@
 platform: linux
 
 inputs:
-- name: service-account-tf
+- name: setup-tf
 - name: bbl-state
 
 outputs:
@@ -13,6 +13,6 @@ run:
   args:
   - -euc
   - |
-    jq -r '.service_account_key' service-account-tf/metadata | base64 --decode > bbl-state/gcreds.json
-    jq -r '.certificate' service-account-tf/metadata > bbl-state/tls_cert
-    jq -r '.private_key' service-account-tf/metadata > bbl-state/tls_key
+    jq -r '.service_account_key' setup-tf/metadata | base64 --decode > bbl-state/gcreds.json
+    jq -r '.certificate' setup-tf/metadata > bbl-state/tls_cert
+    jq -r '.private_key' setup-tf/metadata > bbl-state/tls_key

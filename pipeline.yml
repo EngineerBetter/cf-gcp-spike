@@ -132,7 +132,7 @@ jobs:
     - get: cf-deployment-concourse-tasks
       trigger: true
     - get: pcf-ops
-    - get: service-account-tf
+    - get: setup-tf
   - task: get-tf-outputs
     file: cf-gcp-spike/tasks/get-tf-outputs.yml
     image: pcf-ops
