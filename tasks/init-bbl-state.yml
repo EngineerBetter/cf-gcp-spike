@@ -1,0 +1,20 @@
+---
+platform: linux
+
+params:
+  GCP_CREDENTIALS_JSON:
+  PROJECT_ID:
+
+run:
+  path: bash
+  args:
+  - -euc
+  - |
+    echo "${GCP_CREDENTIALS_JSON}" > googlecreds.json
+    export GOOGLE_APPLICATION_CREDENTIALS=$PWD/googlecreds.json
+    gcloud auth activate-service-account --key-file="$GOOGLE_APPLICATION_CREDENTIALS"
+
+    tar -czf state.tgz -T /dev/null
+
+    gsutil ls gs://${PROJECT_ID}/bbl || \
+      gsutil cp state.tgz gs://${PROJECT_ID}/bbl/
