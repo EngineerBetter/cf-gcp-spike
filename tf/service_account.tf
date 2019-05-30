@@ -13,9 +13,10 @@ resource "google_service_account" "concourse" {
   display_name = "Concourse"
 }
 
-resource "google_service_account_iam_binding" "concourse-iam" {
+resource "google_service_account_iam_member" "concourse-iam" {
   service_account_id = "${google_service_account.concourse.name}"
   role               = "roles/editor"
+  member             = "serviceAccount: ${google_service_account.concourse.email}"
 }
 
 resource "google_service_account_key" "key" {
