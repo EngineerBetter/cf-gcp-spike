@@ -51,19 +51,6 @@ resource "google_compute_global_forwarding_rule" "cf-https-forwarding-rule" {
   port_range = "443"
 }
 
-resource "google_compute_target_http_proxy" "cf-http-lb-proxy" {
-  name        = "http-proxy"
-  description = "really a load balancer but listed as an http proxy"
-  url_map     = "${google_compute_url_map.cf-https-lb-url-map.self_link}"
-}
-
-resource "google_compute_target_https_proxy" "cf-https-lb-proxy" {
-  name             = "https-proxy"
-  description      = "really a load balancer but listed as an https proxy"
-  url_map          = "${google_compute_url_map.cf-https-lb-url-map.self_link}"
-  ssl_certificates = ["${google_compute_ssl_certificate.cf-cert.self_link}"]
-}
-
 resource "google_compute_ssl_certificate" "cf-cert" {
   name_prefix = "cf"
   description = "user provided ssl private key / ssl certificate pair"
@@ -74,12 +61,6 @@ resource "google_compute_ssl_certificate" "cf-cert" {
     create_before_destroy = true
   }
 }
-
-# resource "google_compute_url_map" "cf-https-lb-url-map" {
-#   name = "cf-http"
-
-#   default_service = "${google_compute_backend_service.router-lb-backend-service.self_link}"
-# }
 
 resource "google_compute_health_check" "cf-public-health-check" {
   name = "cf-public"
