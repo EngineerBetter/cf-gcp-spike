@@ -3,16 +3,9 @@ resource "google_compute_network" "cf" {
   auto_create_subnetworks = false
 }
 
-resource "google_compute_subnetwork" "control_plane" {
-  name          = "control-plane-subnet"
-  ip_cidr_range = "${var.control_plane_cidr}"
-  network       = "${google_compute_network.cf.self_link}"
-  region        = "${var.region}"
-}
-
-resource "google_compute_subnetwork" "cfar" {
-  name          = "cfar-subnet"
-  ip_cidr_range = "${var.cfar_cidr}"
+resource "google_compute_subnetwork" "cf_network" {
+  name          = "cf-subnet"
+  ip_cidr_range = "${var.cf_network_cidr}"
   network       = "${google_compute_network.cf.self_link}"
   region        = "${var.region}"
 }
@@ -33,5 +26,5 @@ resource "google_compute_firewall" "internal" {
     protocol = "udp"
   }
 
-  source_ranges = "${concat(list(var.control_plane_cidr))}"
+  source_ranges = "${concat(list(var.cf_network_cidr))}"
 }

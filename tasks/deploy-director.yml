@@ -1,0 +1,32 @@
+---
+platform: linux
+
+inputs:
+- name: bosh-creds
+- name: bosh-state
+- name: terraform-infra
+- name: bosh-deployment
+
+outputs:
+- name: bosh-creds
+- name: bosh-state
+
+run:
+  path: bash
+  args:
+  - -euc
+  - |
+    bosh create-env bosh-deployment/bosh.yml \
+    --state=bosh-state/state.json \
+    --vars-store=bosh-creds/creds.yml \
+    -o bosh-deployment/gcp/cpi.yml \
+    -v director_name=bosh \
+    -v internal_cidr=$(jq -r '.internal_cidr' terraform-infra/metadata) \
+    -v internal_gw=$(jq -r '.internal_gw' terraform-infra/metadata) \
+    -v internal_ip=$(jq -r '.internal_ip' terraform-infra/metadata) \
+    --var-file gcp_credentials_json=~/Downloads/gcp-23r82r3y2.json \
+    -v project_id=${PROJECT_ID} \
+    -v zone=${REGION}-a \
+    -v tags=[internal] \
+    -v network=cf \
+    -v subnetwork=cf-subnet

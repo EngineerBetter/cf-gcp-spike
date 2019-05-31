@@ -11,13 +11,13 @@ output "private_key" {
 }
 
 output "internal_gw" {
-  value = "${google_compute_subnetwork.control_plane.gateway_address}"
+  value = "${google_compute_subnetwork.cf_network.gateway_address}"
 }
 
 output "internal_cidr" {
-  value = "${var.control_plane_cidr}"
+  value = "${var.cf_network_cidr}"
 }
 
 output "internal_ip" {
-  value = "${cidrhost(var.control_plane_cidr, 6)}"
+  value = "${cidrhost(var.cf_network_cidr, 6)}"
 }

@@ -28,6 +28,18 @@ resources:
     bucket: ((project_id))
     json_key: ((gcp_credentials_json))
     versioned_file: ci/terraform.tfstate
+- name: bosh-creds
+  type: gcs-resource
+  source:
+    bucket: ((project_id))
+    json_key: ((gcp_credentials_json))
+    versioned_file: bosh/creds.yml
+- name: bosh-state
+  type: gcs-resource
+  source:
+    bucket: ((project_id))
+    json_key: ((gcp_credentials_json))
+    versioned_file: bosh/state.json
 - name: cf-gcp-spike
   type: git
   check_every: 2m
@@ -112,6 +124,18 @@ jobs:
     - get: pcf-ops
     - get: terraform-infra
     - get: bosh-deployment
+    - get: bosh-creds
+    - get: bosh-state
+  - task: deploy-director
+    file: cf-gcp-spike/tasks/deploy-director.yml
+    ensure:
+      in_parallel:
+      - put: bosh-creds
+        params:
+          file: bosh-creds/creds.yml
+      - put: bosh-state
+        params:
+          file: bosh-state/state.json
 
 - name: deploy-cf
   serial: true
