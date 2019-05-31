@@ -3,7 +3,7 @@ variable "gcp_creds" {}
 variable "project_id" {}
 variable "domain" {}
 
-variable "control_plane_cidr" {
+variable "cf_network_cidr" {
   type    = "string"
   default = "10.0.0.0/22"
 }
