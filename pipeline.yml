@@ -7,6 +7,7 @@ groups:
   - deploy-cf
 - name: destroy
   jobs:
+  - delete-cf
   - destroy-director
   - teardown-project
 
@@ -187,15 +188,14 @@ jobs:
     params:
       BBL_STATE_DIR: bbl-state
       MANIFEST_FILE: cf-deployment.yml
-      SYSTEM_DOMAIN: system.((domain))
-      OPS_FILES: "operations/use-compiled-releases.yml operations/override-app-domains.yml"
+      SYSTEM_DOMAIN: ((domain))
+      OPS_FILES: "operations/use-compiled-releases.yml"
       REGENERATE_CREDENTIALS: false
       DEPLOY_WITH_UPTIME_MEASUREMENTS: false
       MEASURE_SYSLOG_AVAILABILITY: false
       FAIL_ON_DOWNTIME: false
-      BOSH_DEPLOY_ARGS: "--var=app_domains=[apps.((domain))] --var=smoke_test_app_domain=apps.((domain))"
 
-- name: destroy-director
+- name: delete-cf
   serial: true
   serial_groups:
   - bosh
@@ -204,6 +204,33 @@ jobs:
     - get: cf-gcp-spike
     - get: cf-deployment-concourse-tasks
     - get: bbl-state
+      params:
+        unpack: true
+  - task: delete-deployments
+    file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
+    params:
+      BBL_STATE_DIR: bbl-state
+      DELETE_ALL_DEPLOYMENTS: true
+- name: destroy-director
+  serial: true
+  serial_groups:
+  - bosh
+  plan:
+  - in_parallel:
+    - get: cf-gcp-spike
+      trigger: true
+      passed:
+      - delete-cf
+    - get: cf-deployment-concourse-tasks
+      trigger: true
+      passed:
+      - delete-cf
+    - get: bbl-state
+      trigger: true
+      passed:
+      - delete-cf
+      params:
+        unpack: true
   - task: get-tf-outputs
     file: cf-gcp-spike/tasks/get-tf-outputs.yml
     image: pcf-ops
@@ -219,6 +246,7 @@ jobs:
   plan:
   - in_parallel:
     - get: cf-gcp-spike
+      trigger: true
       passed: [destroy-director]
     - get: concourse-gcp-tf-bootstrap
       passed: [setup-project]
