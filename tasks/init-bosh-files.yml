@@ -1,0 +1,23 @@
+---
+platform: linux
+
+params:
+  GCP_CREDENTIALS_JSON:
+  PROJECT_ID:
+
+run:
+  path: bash
+  args:
+  - -euc
+  - |
+    echo "${GCP_CREDENTIALS_JSON}" > googlecreds.json
+    export gcreds=$PWD/googlecreds.json
+    gcloud auth activate-service-account --key-file="$gcreds"
+    touch creds.yml
+    echo "{}" > state.json
+    set +e
+    gsutil ls gs://${PROJECT_ID}/bosh
+    if [[ $? -ge 0 ]]; then
+      gsutil cp creds.yml gs://${PROJECT_ID}/bosh/creds.yml
+      gsutil cp state.json gs://${PROJECT_ID}/bosh/state.json
+    fi
