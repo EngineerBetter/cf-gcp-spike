@@ -37,19 +37,19 @@ resource "google_compute_global_address" "cf-address" {
   name = "cf"
 }
 
-resource "google_compute_global_forwarding_rule" "cf-http-forwarding-rule" {
-  name       = "cf-http"
-  ip_address = "${google_compute_global_address.cf-address.address}"
-  target     = "${google_compute_target_http_proxy.cf-http-lb-proxy.self_link}"
-  port_range = "80"
-}
+# resource "google_compute_global_forwarding_rule" "cf-http-forwarding-rule" {
+#   name       = "cf-http"
+#   ip_address = "${google_compute_global_address.cf-address.address}"
+#   target     = "${google_compute_target_http_proxy.cf-http-lb-proxy.self_link}"
+#   port_range = "80"
+# }
 
-resource "google_compute_global_forwarding_rule" "cf-https-forwarding-rule" {
-  name       = "cf-https"
-  ip_address = "${google_compute_global_address.cf-address.address}"
-  target     = "${google_compute_target_https_proxy.cf-https-lb-proxy.self_link}"
-  port_range = "443"
-}
+# resource "google_compute_global_forwarding_rule" "cf-https-forwarding-rule" {
+#   name       = "cf-https"
+#   ip_address = "${google_compute_global_address.cf-address.address}"
+#   target     = "${google_compute_target_https_proxy.cf-https-lb-proxy.self_link}"
+#   port_range = "443"
+# }
 
 resource "google_compute_ssl_certificate" "cf-cert" {
   name_prefix = "cf"
