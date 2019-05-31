@@ -104,6 +104,13 @@ jobs:
       PROJECT_ID: ((project_id))
       PROJECT_NAME: ((project_name))
   - in_parallel:
+    - task: init-bosh-files
+      file: cf-gcp-spike/tasks/init-bosh-files.yml
+      image: pcf-ops
+      params:
+        GCP_CREDENTIALS_JSON: ((gcp_credentials_json))
+        PROJECT_ID: ((project_id))
+        REGION: ((region))
     - put: project-tfstate
       params:
         file: tfstate-out/terraform.tfstate
@@ -128,6 +135,9 @@ jobs:
     - get: bosh-state
   - task: deploy-director
     file: cf-gcp-spike/tasks/deploy-director.yml
+    params:
+        PROJECT_ID: ((project_id))
+        REGION: ((region))
     ensure:
       in_parallel:
       - put: bosh-creds

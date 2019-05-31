@@ -11,11 +11,17 @@ outputs:
 - name: bosh-creds
 - name: bosh-state
 
+params:
+  PROJECT_ID:
+  REGION:
+
 run:
   path: bash
   args:
   - -euc
   - |
+    jq -r '.service_account_key' terraform-infra/metadata > googlecreds.json
+
     bosh create-env bosh-deployment/bosh.yml \
     --state=bosh-state/state.json \
     --vars-store=bosh-creds/creds.yml \
@@ -24,7 +30,7 @@ run:
     -v internal_cidr=$(jq -r '.internal_cidr' terraform-infra/metadata) \
     -v internal_gw=$(jq -r '.internal_gw' terraform-infra/metadata) \
     -v internal_ip=$(jq -r '.internal_ip' terraform-infra/metadata) \
-    --var-file gcp_credentials_json=~/Downloads/gcp-23r82r3y2.json \
+    --var-file gcp_credentials_json=googlecreds.json \
     -v project_id=${PROJECT_ID} \
     -v zone=${REGION}-a \
     -v tags=[internal] \
