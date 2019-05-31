@@ -4,7 +4,7 @@ resource "google_compute_network" "cf" {
 }
 
 resource "google_compute_subnetwork" "control_plane" {
-  name          = "control_plane-subnet"
+  name          = "control-plane-subnet"
   ip_cidr_range = "${var.control_plane_cidr}"
   network       = "${google_compute_network.cf.self_link}"
   region        = "${var.region}"
