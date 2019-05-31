@@ -33,5 +33,5 @@ resource "google_compute_firewall" "internal" {
     protocol = "udp"
   }
 
-  source_ranges = "${concat(list(var.control_plane_cidr), var.internal_access_source_ranges)}"
+  source_ranges = "${concat(list(var.control_plane_cidr))}"
 }

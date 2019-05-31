@@ -28,8 +28,8 @@ output "ws_lb_ip" {
 
 resource "google_compute_firewall" "firewall-cf" {
   name       = "cf-open"
-  depends_on = ["google_compute_network.bbl-network"]
-  network    = "${google_compute_network.bbl-network.name}"
+  depends_on = ["google_compute_network.cf"]
+  network    = "${google_compute_network.cf.name}"
 
   allow {
     protocol = "tcp"
@@ -106,8 +106,8 @@ resource "google_compute_http_health_check" "cf-public-health-check" {
 
 resource "google_compute_firewall" "cf-health-check" {
   name       = "cf-health-check"
-  depends_on = ["google_compute_network.bbl-network"]
-  network    = "${google_compute_network.bbl-network.name}"
+  depends_on = ["google_compute_network.cf"]
+  network    = "${google_compute_network.cf.name}"
 
   allow {
     protocol = "tcp"
@@ -128,8 +128,8 @@ resource "google_compute_address" "cf-ssh-proxy" {
 
 resource "google_compute_firewall" "cf-ssh-proxy" {
   name       = "cf-ssh-proxy-open"
-  depends_on = ["google_compute_network.bbl-network"]
-  network    = "${google_compute_network.bbl-network.name}"
+  depends_on = ["google_compute_network.cf"]
+  network    = "${google_compute_network.cf.name}"
 
   allow {
     protocol = "tcp"
@@ -159,8 +159,8 @@ resource "google_compute_forwarding_rule" "cf-ssh-proxy" {
 
 # resource "google_compute_firewall" "cf-tcp-router" {
 #   name       = "cf-tcp-router"
-#   depends_on = ["google_compute_network.bbl-network"]
-#   network    = "${google_compute_network.bbl-network.name}"
+#   depends_on = ["google_compute_network.cf"]
+#   network    = "${google_compute_network.cf.name}"
 
 #   allow {
 #     protocol = "tcp"

@@ -16,8 +16,8 @@ resource "google_service_account_key" "key" {
 }
 
 resource "google_service_account" "blobstore" {
-  account_id   = "${var.env_name}-blobstore"
-  display_name = "${var.env_name} Blobstore Service Account"
+  account_id   = "blobstore"
+  display_name = "Blobstore Service Account"
 }
 
 resource "google_service_account_key" "blobstore" {
@@ -25,7 +25,6 @@ resource "google_service_account_key" "blobstore" {
 }
 
 resource "google_project_iam_member" "blobstore_cloud_storage_admin" {
-  project = "${var.project}"
-  role    = "roles/storage.admin"
-  member  = "serviceAccount:${google_service_account.blobstore.email}"
+  role   = "roles/storage.admin"
+  member = "serviceAccount:${google_service_account.blobstore.email}"
 }

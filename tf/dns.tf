@@ -1,11 +1,11 @@
 resource "google_dns_managed_zone" "default" {
   name        = "cf-zone"
-  dns_name    = "${var.root_domain}."
+  dns_name    = "${var.domain}."
   description = "DNS zone for CF"
 }
 
 resource "google_dns_record_set" "system" {
-  name = "*.sys.${var.dns_zone_dns_name}"
+  name = "*.sys.${var.domain}"
   type = "A"
   ttl  = 300
 
@@ -15,7 +15,7 @@ resource "google_dns_record_set" "system" {
 }
 
 # resource "google_dns_record_set" "doppler-sys-dns" {
-#   name = "doppler.sys.${var.dns_zone_dns_name}"
+#   name = "doppler.sys.${var.domain}"
 #   type = "A"
 #   ttl  = 300
 
@@ -25,7 +25,7 @@ resource "google_dns_record_set" "system" {
 # }
 
 # resource "google_dns_record_set" "loggregator-sys-dns" {
-#   name = "loggregator.sys.${var.dns_zone_dns_name}"
+#   name = "loggregator.sys.${var.domain}"
 #   type = "A"
 #   ttl  = 300
 
@@ -35,7 +35,7 @@ resource "google_dns_record_set" "system" {
 # }
 
 resource "google_dns_record_set" "wildcard-apps-dns" {
-  name = "*.apps.${var.dns_zone_dns_name}"
+  name = "*.apps.${var.domain}"
   type = "A"
   ttl  = 300
 
@@ -45,7 +45,7 @@ resource "google_dns_record_set" "wildcard-apps-dns" {
 }
 
 # resource "google_dns_record_set" "wildcard-ws-dns" {
-#   name = "*.ws.${var.dns_zone_dns_name}"
+#   name = "*.ws.${var.domain}"
 #   type = "A"
 #   ttl  = 300
 
@@ -58,7 +58,7 @@ resource "google_dns_record_set" "wildcard-apps-dns" {
 
 
 # resource "google_dns_record_set" "app-ssh-dns" {
-#   name = "ssh.sys.${var.dns_zone_dns_name}"
+#   name = "ssh.sys.${var.domain}"
 #   type = "A"
 #   ttl  = 300
 
@@ -71,7 +71,7 @@ resource "google_dns_record_set" "wildcard-apps-dns" {
 
 
 # resource "google_dns_record_set" "tcp-dns" {
-#   name = "tcp.${var.dns_zone_dns_name}"
+#   name = "tcp.${var.domain}"
 #   type = "A"
 #   ttl  = 300
 
