@@ -6,9 +6,9 @@ variable "ssl_certificate_private_key" {
   type = "string"
 }
 
-output "router_backend_service" {
-  value = "${google_compute_backend_service.router-lb-backend-service.name}"
-}
+# output "router_backend_service" {
+#   value = "${google_compute_backend_service.router-lb-backend-service.name}"
+# }
 
 output "router_lb_ip" {
   value = "${google_compute_global_address.cf-address.address}"
@@ -18,28 +18,20 @@ output "ssh_proxy_lb_ip" {
   value = "${google_compute_address.cf-ssh-proxy.address}"
 }
 
-output "tcp_router_lb_ip" {
-  value = "${google_compute_address.cf-tcp-router.address}"
-}
+# resource "google_compute_firewall" "firewall-cf" {
+#   name       = "cf-open"
+#   depends_on = ["google_compute_network.cf"]
+#   network    = "${google_compute_network.cf.name}"
 
-output "ws_lb_ip" {
-  value = "${google_compute_address.cf-ws.address}"
-}
+#   allow {
+#     protocol = "tcp"
+#     ports    = ["80", "443"]
+#   }
 
-resource "google_compute_firewall" "firewall-cf" {
-  name       = "cf-open"
-  depends_on = ["google_compute_network.cf"]
-  network    = "${google_compute_network.cf.name}"
+#   source_ranges = ["0.0.0.0/0"]
 
-  allow {
-    protocol = "tcp"
-    ports    = ["80", "443"]
-  }
-
-  source_ranges = ["0.0.0.0/0"]
-
-  target_tags = ["${google_compute_backend_service.router-lb-backend-service.name}"]
-}
+#   target_tags = ["${google_compute_backend_service.router-lb-backend-service.name}"]
+# }
 
 resource "google_compute_global_address" "cf-address" {
   name = "cf"
@@ -83,11 +75,11 @@ resource "google_compute_ssl_certificate" "cf-cert" {
   }
 }
 
-resource "google_compute_url_map" "cf-https-lb-url-map" {
-  name = "cf-http"
+# resource "google_compute_url_map" "cf-https-lb-url-map" {
+#   name = "cf-http"
 
-  default_service = "${google_compute_backend_service.router-lb-backend-service.self_link}"
-}
+#   default_service = "${google_compute_backend_service.router-lb-backend-service.self_link}"
+# }
 
 resource "google_compute_health_check" "cf-public-health-check" {
   name = "cf-public"
@@ -104,19 +96,19 @@ resource "google_compute_http_health_check" "cf-public-health-check" {
   request_path = "/health"
 }
 
-resource "google_compute_firewall" "cf-health-check" {
-  name       = "cf-health-check"
-  depends_on = ["google_compute_network.cf"]
-  network    = "${google_compute_network.cf.name}"
+# resource "google_compute_firewall" "cf-health-check" {
+#   name       = "cf-health-check"
+#   depends_on = ["google_compute_network.cf"]
+#   network    = "${google_compute_network.cf.name}"
 
-  allow {
-    protocol = "tcp"
-    ports    = ["8080", "80"]
-  }
+#   allow {
+#     protocol = "tcp"
+#     ports    = ["8080", "80"]
+#   }
 
-  source_ranges = ["130.211.0.0/22", "35.191.0.0/16"]
-  target_tags   = ["${google_compute_backend_service.router-lb-backend-service.name}"]
-}
+#   source_ranges = ["130.211.0.0/22", "35.191.0.0/16"]
+#   target_tags   = ["${google_compute_backend_service.router-lb-backend-service.name}"]
+# }
 
 output "ssh_proxy_target_pool" {
   value = "${google_compute_target_pool.cf-ssh-proxy.name}"
@@ -152,91 +144,3 @@ resource "google_compute_forwarding_rule" "cf-ssh-proxy" {
   ip_protocol = "TCP"
   ip_address  = "${google_compute_address.cf-ssh-proxy.address}"
 }
-
-# output "tcp_router_target_pool" {
-#   value = "${google_compute_target_pool.cf-tcp-router.name}"
-# }
-
-# resource "google_compute_firewall" "cf-tcp-router" {
-#   name       = "cf-tcp-router"
-#   depends_on = ["google_compute_network.cf"]
-#   network    = "${google_compute_network.cf.name}"
-
-#   allow {
-#     protocol = "tcp"
-#     ports    = ["1024-32768"]
-#   }
-
-#   target_tags = ["${google_compute_target_pool.cf-tcp-router.name}"]
-# }
-
-# resource "google_compute_address" "cf-tcp-router" {
-#   name = "cf-tcp-router"
-# }
-
-resource "google_compute_http_health_check" "cf-tcp-router" {
-  name         = "cf-tcp-router"
-  port         = 80
-  request_path = "/health"
-}
-
-# resource "google_compute_target_pool" "cf-tcp-router" {
-#   name = "cf-tcp-router"
-
-
-#   session_affinity = "NONE"
-
-
-#   health_checks = [
-#     "${google_compute_http_health_check.cf-tcp-router.name}",
-#   ]
-# }
-
-
-# resource "google_compute_forwarding_rule" "cf-tcp-router" {
-#   name        = "cf-tcp-router"
-#   target      = "${google_compute_target_pool.cf-tcp-router.self_link}"
-#   port_range  = "1024-32768"
-#   ip_protocol = "TCP"
-#   ip_address  = "${google_compute_address.cf-tcp-router.address}"
-# }
-
-
-# output "ws_target_pool" {
-#   value = "${google_compute_target_pool.cf-ws.name}"
-# }
-
-
-# resource "google_compute_address" "cf-ws" {
-#   name = "cf-ws"
-# }
-
-
-# resource "google_compute_target_pool" "cf-ws" {
-#   name = "cf-ws"
-
-
-#   session_affinity = "NONE"
-
-
-#   health_checks = ["${google_compute_http_health_check.cf-public-health-check.name}"]
-# }
-
-
-# resource "google_compute_forwarding_rule" "cf-ws-https" {
-#   name        = "cf-ws-https"
-#   target      = "${google_compute_target_pool.cf-ws.self_link}"
-#   port_range  = "443"
-#   ip_protocol = "TCP"
-#   ip_address  = "${google_compute_address.cf-ws.address}"
-# }
-
-
-# resource "google_compute_forwarding_rule" "cf-ws-http" {
-#   name        = "cf-ws-http"
-#   target      = "${google_compute_target_pool.cf-ws.self_link}"
-#   port_range  = "80"
-#   ip_protocol = "TCP"
-#   ip_address  = "${google_compute_address.cf-ws.address}"
-# }
-

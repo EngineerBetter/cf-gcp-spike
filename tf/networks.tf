@@ -6,14 +6,14 @@ resource "google_compute_network" "cf" {
 resource "google_compute_subnetwork" "control_plane" {
   name          = "control_plane-subnet"
   ip_cidr_range = "${var.control_plane_cidr}"
-  network       = "${google_compute_network.cf_network.self_link}"
+  network       = "${google_compute_network.cf.self_link}"
   region        = "${var.region}"
 }
 
 resource "google_compute_subnetwork" "cfar" {
   name          = "cfar-subnet"
   ip_cidr_range = "${var.cfar_cidr}"
-  network       = "${google_compute_network.cf_network.self_link}"
+  network       = "${google_compute_network.cf.self_link}"
   region        = "${var.region}"
 }
 
