@@ -54,8 +54,8 @@ resource "google_compute_global_address" "cf-address" {
 resource "google_compute_ssl_certificate" "cf-cert" {
   name_prefix = "cf"
   description = "user provided ssl private key / ssl certificate pair"
-  private_key = "${var.ssl_certificate_private_key}"
-  certificate = "${var.ssl_certificate}"
+  private_key = "${tls_private_key.tls_key.private_key_pem}"
+  certificate = "${tls_self_signed_cert.tls_cert.cert_pem}"
 
   lifecycle {
     create_before_destroy = true
