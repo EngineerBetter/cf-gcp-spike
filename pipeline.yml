@@ -135,6 +135,7 @@ jobs:
     - get: bosh-state
   - task: deploy-director
     file: cf-gcp-spike/tasks/deploy-director.yml
+    image: pcf-ops
     params:
         PROJECT_ID: ((project_id))
         REGION: ((region))
