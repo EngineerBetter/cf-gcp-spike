@@ -7,8 +7,8 @@ groups:
   - deploy-cf
 - name: destroy
   jobs:
-  - delete-cf
-  - destroy-director
+  # - delete-cf
+  # - destroy-director
   - teardown-project
 
 resource_types:
@@ -22,18 +22,12 @@ resource_types:
     repository: ljfranklin/terraform-resource
 
 resources:
-- name: tfstate
+- name: project-tfstate
   type: gcs-resource
   source:
     bucket: ((project_id))
     json_key: ((gcp_credentials_json))
     versioned_file: ci/terraform.tfstate
-- name: bbl-state
-  type: gcs-resource
-  source:
-    bucket: ((project_id))
-    json_key: ((gcp_credentials_json))
-    versioned_file: bbl/state.tgz
 - name: cf-gcp-spike
   type: git
   check_every: 2m
@@ -46,29 +40,22 @@ resources:
   source:
     uri: https://github.com/EngineerBetter/concourse-gcp-tf-bootstrap.git
     branch: v1.0.0
-- name: cf-deployment-concourse-tasks
-  type: git
-  check_every: 2m
-  source:
-    uri: https://github.com/cloudfoundry/cf-deployment-concourse-tasks.git
-    tag_filter: v8.*
-- name: bosh-bootloader
-  type: git
-  check_every: 2m
-  source:
-    uri: https://github.com/cloudfoundry/bosh-bootloader.git
-    tag_filter: v8.*
 - name: cf-deployment
   type: git
   check_every: 2m
   source:
     uri: https://github.com/cloudfoundry/cf-deployment.git
     tag_filter: v9.*
+- name: bosh-deployment
+  type: git
+  check_every: 2m
+  source:
+    uri: https://github.com/cloudfoundry/bosh-deployment.git
 - name: pcf-ops
   type: docker-image
   source:
     repository: engineerbetter/pcf-ops
-- name: setup-tf
+- name: terraform-infra
   type: terraform
   source:
     env_name: ci
@@ -112,12 +99,13 @@ jobs:
         GCP_CREDENTIALS_JSON: ((gcp_credentials_json))
         PROJECT_ID: ((project_id))
         REGION: ((region))
-    - put: tfstate
+    - put: project-tfstate
       params:
         file: tfstate-out/terraform.tfstate
-    - put: setup-tf
+    - put: terraform-infra
       params:
         terraform_source: cf-gcp-spike/tf
+
 - name: deploy-director
   serial: true
   serial_groups:
@@ -128,37 +116,10 @@ jobs:
       passed:
       - setup-project
       trigger: true
-    - get: bbl-state
-      params:
-        unpack: true
-    - get: bosh-bootloader
-      trigger: true
-    - get: cf-deployment-concourse-tasks
-      trigger: true
     - get: pcf-ops
-    - get: setup-tf
-  - task: get-tf-outputs
-    file: cf-gcp-spike/tasks/get-tf-outputs.yml
-    image: pcf-ops
-  - task: bbl-up
-    file: cf-deployment-concourse-tasks/bbl-up/task.yml
-    input_mapping:
-      bbl-config: bosh-bootloader
-    params:
-      BBL_GCP_REGION: ((region))
-      BBL_GCP_SERVICE_ACCOUNT_KEY: gcreds.json
-      BBL_IAAS: gcp
-      BBL_LB_CERT: ../tls_cert
-      BBL_LB_KEY: ../tls_key
-      BBL_STATE_DIR: bbl-state
-      LB_DOMAIN: ((domain))
-      SKIP_LB_CREATION: false
-  - task: tar-bbl-state
-    file: cf-gcp-spike/tasks/tar-bbl-state.yml
-    image: pcf-ops
-  - put: bbl-state
-    params:
-      file: state-tarball/state.tgz
+    - get: terraform-infra
+    - get: bosh-deployment
+
 - name: deploy-cf
   serial: true
   serial_groups:
@@ -169,76 +130,11 @@ jobs:
       passed:
       - deploy-director
       trigger: true
-    - get: cf-deployment-concourse-tasks
-      trigger: true
-      passed:
-      - deploy-director
     - get: cf-deployment
-    - get: bbl-state
-      trigger: true
-      passed:
-      - deploy-director
-      params:
-        unpack: true
   - task: deploy-cf
-    file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
-    input_mapping:
-      ops-files: cf-deployment
-      vars-files: cf-gcp-spike
-    params:
-      BBL_STATE_DIR: bbl-state
-      MANIFEST_FILE: cf-deployment.yml
-      SYSTEM_DOMAIN: ((domain))
-      OPS_FILES: "operations/use-compiled-releases.yml"
-      REGENERATE_CREDENTIALS: false
-      DEPLOY_WITH_UPTIME_MEASUREMENTS: false
-      MEASURE_SYSLOG_AVAILABILITY: false
-      FAIL_ON_DOWNTIME: false
+    file:
 
-- name: delete-cf
-  serial: true
-  serial_groups:
-  - bosh
-  plan:
-  - in_parallel:
-    - get: cf-gcp-spike
-    - get: cf-deployment-concourse-tasks
-    - get: bbl-state
-      params:
-        unpack: true
-  - task: delete-deployments
-    file: cf-deployment-concourse-tasks/bosh-delete-deployment/task.yml
-    params:
-      BBL_STATE_DIR: bbl-state
-      DELETE_ALL_DEPLOYMENTS: true
-- name: destroy-director
-  serial: true
-  serial_groups:
-  - bosh
-  plan:
-  - in_parallel:
-    - get: cf-gcp-spike
-      trigger: true
-      passed:
-      - delete-cf
-    - get: cf-deployment-concourse-tasks
-      trigger: true
-      passed:
-      - delete-cf
-    - get: bbl-state
-      trigger: true
-      passed:
-      - delete-cf
-      params:
-        unpack: true
-  - task: get-tf-outputs
-    file: cf-gcp-spike/tasks/get-tf-outputs.yml
-    image: pcf-ops
-  - task: bbl-destroy
-    file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
-    params:
-      BBL_GCP_SERVICE_ACCOUNT_KEY: gcreds.json
-      BBL_IAAS: gcp
+
 - name: teardown-project
   serial: true
   serial_groups:
