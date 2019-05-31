@@ -5,7 +5,7 @@ resource "google_dns_managed_zone" "default" {
 }
 
 resource "google_dns_record_set" "system" {
-  name = "*.sys.${var.domain}"
+  name = "*.sys.${google_dns_managed_zone.default.dns_name}"
   type = "A"
   ttl  = 300
 
@@ -35,7 +35,7 @@ resource "google_dns_record_set" "system" {
 # }
 
 resource "google_dns_record_set" "wildcard-apps-dns" {
-  name = "*.apps.${var.domain}"
+  name = "*.apps.${google_dns_managed_zone.default.dns_name}"
   type = "A"
   ttl  = 300
 
