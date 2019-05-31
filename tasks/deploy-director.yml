@@ -20,7 +20,7 @@ run:
   args:
   - -euc
   - |
-    jq -r '.service_account_key' terraform-infra/metadata > googlecreds.json
+    jq -r '.service_account_key' terraform-infra/metadata | base64 --decode > googlecreds.json
 
     bosh create-env bosh-deployment/bosh.yml \
     --state=bosh-state/state.json \
