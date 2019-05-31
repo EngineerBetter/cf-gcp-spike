@@ -9,3 +9,15 @@ output "certificate" {
 output "private_key" {
   value = "${tls_private_key.tls_key.private_key_pem}"
 }
+
+output "internal_gw" {
+  value = "${google_compute_subnetwork.control_plane.gateway_address}"
+}
+
+output "internal_cidr" {
+  value = "${var.control_plane_cidr}"
+}
+
+output "internal_ip" {
+  value = "${cidrhost(var.control_plane_cidr, 6)}"
+}
