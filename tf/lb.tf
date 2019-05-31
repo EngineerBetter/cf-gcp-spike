@@ -1,11 +1,3 @@
-variable "ssl_certificate" {
-  type = "string"
-}
-
-variable "ssl_certificate_private_key" {
-  type = "string"
-}
-
 # output "router_backend_service" {
 #   value = "${google_compute_backend_service.router-lb-backend-service.name}"
 # }
