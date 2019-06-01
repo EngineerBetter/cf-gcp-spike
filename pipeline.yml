@@ -180,4 +180,5 @@ jobs:
     file: concourse-gcp-tf-bootstrap/tasks/teardown.yml
     input_mapping:
       gcp-bootstrap: concourse-gcp-tf-bootstrap
+      tfstate: project-tfstate
     params: *project-ops-params
