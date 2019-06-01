@@ -28,3 +28,7 @@ resource "google_compute_firewall" "internal" {
 
   source_ranges = "${concat(list(var.cf_network_cidr))}"
 }
+
+resource "google_compute_address" "director-ip" {
+  name = "director-ip"
+}

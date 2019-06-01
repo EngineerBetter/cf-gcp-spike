@@ -21,3 +21,7 @@ output "internal_cidr" {
 output "internal_ip" {
   value = "${cidrhost(var.cf_network_cidr, 6)}"
 }
+
+output "director_ip" {
+  value = "${google_compute_address.director-ip.address}"
+}
