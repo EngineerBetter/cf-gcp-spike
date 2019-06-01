@@ -10,6 +10,61 @@ resource "google_compute_subnetwork" "cf_network" {
   region        = "${var.region}"
 }
 
+resource "google_compute_firewall" "external" {
+  name    = "external"
+  network = "${google_compute_network.cf.name}"
+
+  source_ranges = ["0.0.0.0/0"]
+
+  allow {
+    ports    = ["22", "6868", "25555"]
+    protocol = "tcp"
+  }
+
+  target_tags = ["bosh-open"]
+}
+
+resource "google_compute_firewall" "bosh-open" {
+  name    = "bosh-open"
+  network = "${google_compute_network.bbl-network.name}"
+
+  source_tags = ["bosh-open"]
+
+  allow {
+    ports    = ["22", "6868", "8443", "8844", "25555"]
+    protocol = "tcp"
+  }
+
+  target_tags = ["bosh-director"]
+}
+
+resource "google_compute_firewall" "bosh-director" {
+  name    = "bosh-director"
+  network = "${google_compute_network.cf.name}"
+
+  source_tags = ["bosh-director"]
+
+  allow {
+    protocol = "tcp"
+  }
+
+  target_tags = ["internal"]
+}
+
+resource "google_compute_firewall" "internal-to-director" {
+  name    = "internal-to-director"
+  network = "${google_compute_network.bbl-network.name}"
+
+  source_tags = ["internal"]
+
+  allow {
+    ports    = ["4222", "25250", "25777"]
+    protocol = "tcp"
+  }
+
+  target_tags = ["bosh-director"]
+}
+
 resource "google_compute_firewall" "internal" {
   name    = "internal"
   network = "${google_compute_network.cf.self_link}"
@@ -27,6 +82,20 @@ resource "google_compute_firewall" "internal" {
   }
 
   source_ranges = "${concat(list(var.cf_network_cidr))}"
+}
+
+resource "google_compute_firewall" "bosh-open" {
+  name    = "bosh-open"
+  network = "${google_compute_network.cf.name}"
+
+  source_tags = ["bosh-open"]
+
+  allow {
+    ports    = ["22", "6868", "8443", "8844", "25555"]
+    protocol = "tcp"
+  }
+
+  target_tags = ["bosh-director"]
 }
 
 resource "google_compute_address" "director-ip" {

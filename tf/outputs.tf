@@ -25,3 +25,11 @@ output "internal_ip" {
 output "director_ip" {
   value = "${google_compute_address.director-ip.address}"
 }
+
+output "director_tags" {
+  value = ["${google_compute_firewall.bosh-director.name}"]
+}
+
+output "internal_tag_name" {
+  value = "${google_compute_firewall.internal.name}"
+}
