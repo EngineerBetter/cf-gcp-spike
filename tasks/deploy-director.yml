@@ -26,6 +26,7 @@ run:
     --state=bosh-state/state.json \
     --vars-store=bosh-creds/creds.yml \
     -o bosh-deployment/gcp/cpi.yml \
+    -o bosh-deployment/jumpbox-user.yml \
     -v director_name=bosh \
     -v internal_cidr=$(jq -r '.internal_cidr' terraform-infra/metadata) \
     -v internal_gw=$(jq -r '.internal_gw' terraform-infra/metadata) \
